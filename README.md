@@ -88,7 +88,7 @@ Tampilan list semua artikel dengan pagination:
 #### 3. Detail Artikel
 Membaca artikel lengkap dengan kategori dan navigasi:
 
-![Detail Artikel](ss/03-detail-artikel.png)
+![Detail Artikel](ss/03-detail-artiker.png)
 
 #### 4. Halaman About
 Informasi tentang website:
