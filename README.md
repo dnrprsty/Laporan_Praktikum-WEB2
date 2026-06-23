@@ -1,137 +1,970 @@
-# Laporan Praktikum - Pemrograman Web 2
+# Praktikum Web 2 - CodeIgniter 4 dengan Docker
 
-Single Page Application (SPA) berbasis Vue.js dengan REST API backend CodeIgniter 4, dilengkapi sistem autentikasi JWT-like token dan proteksi akses Client-Side serta Server-Side.
+## 🛠 Tech Stack
+- **Backend**: CodeIgniter 4, PHP 8.x, MySQL 8.0
+- **Frontend**: VueJS 3, Vue Router, Axios
+- **Containerization**: Docker & Docker Compose
+- **Package Manager**: Composer
+- **Testing**: PHPUnit
+
+Website portal artikel sederhana berbasis **CodeIgniter 4** dengan fitur CRUD lengkap, sistem autentikasi admin, relasi database, pencarian, filter, dan pagination. Proyek ini dikonfigurasi sepenuhnya dengan **Docker Compose** untuk kemudahan deployment dan dilengkapi dengan **frontend VueJS SPA** yang terintegrasi dengan REST API.
+
+## 📋 Daftar Isi
+
+- [Fitur Utama](#-fitur-utama)
+- [Screenshots](#-screenshots)
+- [Struktur Proyek](#-struktur-proyek)
+- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
+- [Instalasi & Setup](#-instalasi--setup)
+- [Menjalankan Aplikasi](#-menjalankan-aplikasi)
+- [Akun Default](#-akun-default)
+- [Dokumentasi Fitur](#-dokumentasi-fitur)
+- [Endpoint API](#-endpoint-api)
+- [Struktur Database](#-struktur-database)
+- [Dokumentasi Praktikum](#-dokumentasi-praktikum)
 
 ---
 
-## Tech Stack
+## ✨ Fitur Utama
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Backend Framework | CodeIgniter 4 | 4.7.x |
-| Frontend Framework | Vue.js 3 | 3.x |
-| Router | Vue Router 4 | 4.x |
-| HTTP Client | Axios | 1.x |
-| Database | MySQL | 8.0 |
-| Web Server | Apache (Docker) | Latest |
-| Containerization | Docker Compose | Latest |
-| Language (Backend) | PHP | 8.2+ |
-| Language (Frontend) | JavaScript (ES6) | - |
+### Publik (Pengunjung)
+- **Halaman Beranda** - Menampilkan 3 artikel terbaru yang dipublikasikan
+- **Halaman Artikel** - Daftar semua artikel dengan pagination (6 artikel per halaman)
+- **Detail Artikel** - Membaca artikel lengkap dengan nama kategori
+- **Halaman About** - Informasi tentang website
+- **Halaman Contact** - Formulir kontak
+- **Sidebar Dinamis** - Menampilkan artikel terbaru menggunakan View Cell
+- **Layout Responsif** - Header, navigasi, konten utama, sidebar, dan footer yang tertata rapi
+
+### Admin (Terotentikasi)
+- **Autentikasi Login** - System login dengan email dan password terenkripsi
+- **Manajemen Artikel**
+  - Create (tambah) artikel baru
+  - Read (lihat) daftar semua artikel dengan pagination (10 per halaman)
+  - Update (edit) artikel yang sudah dibuat
+  - Delete (hapus) artikel
+  - Pilih kategori artikel
+  - Atur status `Published` (1) atau `Draft` (0)
+  - Ganti sumber gambar artikel
+  - Validasi input lengkap (judul min 3 karakter, isi min 20 karakter)
+
+- **Pencarian & Filter Artikel**
+  - Pencarian berdasarkan judul atau isi artikel
+  - Filter berdasarkan kategori
+  - Kombinasi pencarian dan filter
+
+- **Manajemen Kategori**
+  - Create (tambah) kategori baru
+  - Read (lihat) daftar kategori dengan jumlah artikel
+  - Update (edit) kategori
+  - Delete (hapus) kategori dengan validasi (tidak bisa dihapus jika masih dipakai artikel)
+  - Auto-generate slug dari nama kategori
+
+- **Proteksi Akses** - Auth filter untuk melindungi semua endpoint admin
+
+### Frontend SPA (VueJS)
+- **Single Page Application** - Navigasi halus tanpa reload
+- **Router Navigation** - Vue Router untuk manajemen rute
+- **Dynamic Content** - Data diambil dari REST API backend
+- **Responsive Design** - Layout yang menyesuaikan ukuran layar
+- **State Management** - Menggunakan localStorage untuk session
 
 ---
 
-## Module 12 - REST API dengan CodeIgniter 4
+## 📸 Screenshots
 
-### Objective
-Membangun RESTful Web Service menggunakan CodeIgniter 4 yang menyediakan endpoint CRUD untuk resource artikel.
+### Halaman Publik
 
-### Implementation
+#### 1. Beranda
+Halaman depan website menampilkan artikel terbaru dan sidebar dinamis:
 
-**Controller API:** `app/app/Controllers/Api/Artikel.php`
+![Halaman Beranda](ss/01-beranda.png)
+
+#### 2. Daftar Artikel Publik
+Tampilan list semua artikel dengan pagination:
+
+![Daftar Artikel](ss/02-daftar-artikel.png)
+
+#### 3. Detail Artikel
+Membaca artikel lengkap dengan kategori dan navigasi:
+
+![Detail Artikel](ss/03-detail-artikel.png)
+
+#### 4. Halaman About
+Informasi tentang website:
+
+![Halaman About](ss/04-about.png)
+
+#### 5. Halaman Contact
+Formulir kontak dengan informasi:
+
+![Halaman Contact](ss/05-contact.png)
+
+---
+
+### Halaman Admin
+
+#### 6. Login Admin
+Form login dengan email dan password:
+
+![Login Admin](ss/06-login-admin.png)
+
+#### 7. Dashboard - Daftar Artikel
+Interface admin untuk mengelola semua artikel dengan pencarian, filter, dan pagination:
+
+![Dashboard Artikel](ss/07-admin-dashboard-artikel.png)
+
+#### 8. Pencarian & Filter Artikel
+Fitur pencarian by judul/isi dan filter by kategori:
+
+![Pencarian & Filter](ss/08-admin-search-filter.png)
+
+#### 9. Tambah Artikel
+Form untuk membuat artikel baru:
+
+![Tambah Artikel](ss/09-admin-tambah-artikel.png)
+
+#### 10. Edit Artikel
+Form untuk mengubah artikel yang sudah dibuat:
+
+![Edit Artikel](ss/10-admin-edit-artikel.png)
+
+#### 11. Daftar Kategori
+Interface mengelola kategori dengan jumlah artikel:
+
+![Daftar Kategori](ss/11-admin-daftar-kategori.png)
+
+#### 12. Tambah/Edit Kategori
+Form kategori dengan auto-generate slug:
+
+![Tambah Kategori](ss/12-admin-tambah-kategori.png)
+
+---
+
+### Frontend SPA (VueJS)
+
+#### 13. Frontend SPA - Beranda
+Tampilan beranda di frontend VueJS SPA:
+
+![Frontend Beranda](ss/13-frontend-beranda.png)
+
+#### 14. Frontend SPA - Login
+Form login di frontend VueJS SPA:
+
+![Frontend Login](ss/14-frontend-login.png)
+
+#### 15. Frontend SPA - Daftar Artikel
+Tampilan daftar artikel di frontend SPA (terproteksi):
+
+![Frontend Artikel](ss/15-frontend-artikel.png)
+
+#### 16. Akses Ditolak (Navigation Guard)
+Tampilan ketika akses ditolak karena belum login:
+
+![Akses Ditolak](ss/16-akses-ditolak.png)
+
+#### 17. API Test di Postman
+Pengujian API tanpa token (401 Unauthorized):
+
+![API Test Postman](ss/17-api-test-postman.png)
+
+---
+
+## 📁 Struktur Proyek
+
+```
+web2/
+├── app/                              # Aplikasi CodeIgniter 4
+│   ├── app/
+│   │   ├── Config/                   # Konfigurasi aplikasi
+│   │   │   ├── Routes.php           # Definisi routing
+│   │   │   ├── App.php              # Konfigurasi umum
+│   │   │   ├── Database.php         # Konfigurasi database
+│   │   │   ├── Filters.php          # Filter middleware
+│   │   │   ├── Cors.php             # CORS configuration
+│   │   │   └── ... (config lainnya)
+│   │   ├── Controllers/              # Controller handlers
+│   │   │   ├── Home.php             # Halaman beranda
+│   │   │   ├── Artikel.php          # Kelola artikel (publik & admin)
+│   │   │   ├── Kategori.php         # Kelola kategori
+│   │   │   ├── Page.php             # Halaman statis (about, contact)
+│   │   │   ├── User.php             # Login & logout
+│   │   │   ├── BaseController.php   # Base controller dengan helper method
+│   │   │   └── Api/                 # API Controllers
+│   │   │       ├── Auth.php         # API Auth login
+│   │   │       └── Artikel.php      # API Artikel CRUD
+│   │   ├── Models/                   # Database models
+│   │   │   ├── ArtikelModel.php     # Model untuk tabel artikel
+│   │   │   ├── KategoriModel.php    # Model untuk tabel kategori
+│   │   │   └── UserModel.php        # Model untuk tabel user
+│   │   ├── Views/                    # Template views
+│   │   │   ├── layout/              # Layout utama
+│   │   │   ├── pages/               # Halaman publik (home, about, contact)
+│   │   │   ├── artikel/             # Views artikel (index, detail, admin, form)
+│   │   │   ├── kategori/            # Views kategori (index, form)
+│   │   │   ├── user/                # Views user (login)
+│   │   │   ├── components/          # Komponen reusable
+│   │   │   └── errors/              # Halaman error
+│   │   ├── Database/
+│   │   │   ├── Migrations/          # File migrasi database
+│   │   │   │   ├── 2026-04-20-000001_CreateKategoriTable.php
+│   │   │   │   ├── 2026-04-20-000002_CreateArtikelTable.php
+│   │   │   │   └── 2026-04-20-000003_CreateUserTable.php
+│   │   │   └── Seeds/               # Data seeder
+│   │   ├── Filters/                  # Middleware filter
+│   │   │   ├── Auth.php             # Filter autentikasi
+│   │   │   └── ApiAuthFilter.php    # Filter API auth
+│   │   ├── Cells/                    # View Cell components
+│   │   │   └── ArtikelTerkini.php   # Cell untuk artikel terbaru
+│   │   ├── Helpers/                  # Helper functions
+│   │   ├── Libraries/                # Library tambahan
+│   │   └── Common.php               # Helper function global
+│   ├── public/                       # Public folder (document root)
+│   │   ├── index.php                # Entry point aplikasi
+│   │   ├── style.css                # Stylesheet publik
+│   │   └── robots.txt
+│   ├── vendor/                       # Composer dependencies
+│   ├── writable/                     # Folder writable (cache, logs, session, uploads)
+│   ├── tests/                        # Test files
+│   ├── composer.json                # Composer configuration
+│   ├── .env                         # Environment variables
+│   └── ... (file konfigurasi lainnya)
+├── frontend/                        # Frontend VueJS SPA
+│   ├── index.html                   # Entry point SPA
+│   ├── assets/
+│   │   ├── css/
+│   │   │   └── style.css           # Stylesheet SPA
+│   │   └── js/
+│   │       ├── app.js               # Vue router, guards, Axios interceptors
+│   │       └── components/          # VueJS Components
+│   │           ├── Home.js           # Halaman beranda
+│   │           ├── Artikel.js       # Daftar artikel (terproteksi)
+│   │           └── Login.js         # Form login
+├── docker/                          # Docker configuration
+│   ├── vhost.conf                   # Apache virtual host config
+│   └── start-ci.sh                  # Startup script
+├── Dockerfile                       # Docker image configuration
+├── docker-compose.yml               # Docker Compose configuration
+├── ss/                              # Folder screenshots
+│   ├── 01-beranda.png
+│   ├── 02-daftar-artikel.png
+│   └── ... (screenshot lainnya)
+└── README.md                        # File dokumentasi ini
+```
+
+---
+
+## 🛠 Teknologi yang Digunakan
+
+| Komponen | Teknologi | Versi |
+|----------|-----------|-------|
+| **Backend Framework** | CodeIgniter | 4 |
+| **Backend Language** | PHP | 8.x |
+| **Database** | MySQL | 8.0 |
+| **Web Server** | Apache | Built-in |
+| **Frontend Framework** | VueJS | 3 |
+| **Frontend Router** | Vue Router | 4 |
+| **HTTP Client** | Axios | Latest |
+| **Containerization** | Docker & Docker Compose | Latest |
+| **Package Manager** | Composer | Latest |
+| **Testing** | PHPUnit | Latest |
+
+---
+
+## 🚀 Instalasi & Setup
+
+### Prasyarat
+- Docker dan Docker Compose terinstall
+- Terminal/Command Line
+- Git (untuk clone repository)
+
+### Langkah-langkah
+
+1. **Clone atau Download Repository**
+   ```bash
+   git clone <repository-url>
+   cd web2
+   ```
+
+2. **Build dan Jalankan Container**
+   ```bash
+   docker compose up --build -d
+   ```
+
+3. **Tunggu Proses Initialization**
+   
+   Saat container `app` pertama kali jalan, startup script akan otomatis melakukan:
+   - Menunggu database siap
+   - Menjalankan `composer install`
+   - Menjalankan migrations (membuat tabel)
+   - Menjalankan seeder (mengisi data awal)
+
+   Proses ini membutuhkan 1-2 menit. Anda bisa monitor log dengan:
+   ```bash
+   docker compose logs -f app
+   ```
+
+4. **Akses Aplikasi**
+   - Backend URL: `http://localhost:8082`
+   - Frontend URL: `http://localhost:8081` (jika dijalankan terpisah)
+   - Database: `localhost:3307`
+
+5. **Untuk Menghentikan**
+   ```bash
+   docker compose down
+   ```
+
+---
+
+## 🌐 Menjalankan Aplikasi
+
+### Konfigurasi Port
+
+Port default diatur karena port `8080`, `8081`, dan `3306` sudah dipakai:
+
+| Service | Port |
+|---------|------|
+| Backend Web | 8082 |
+| MySQL Database | 3307 |
+
+Untuk mengubah port, edit `docker-compose.yml`:
+```yaml
+services:
+  app:
+    ports:
+      - "PORT_BARU:80"  # Ubah PORT_BARU sesuai keinginan
+```
+
+### Development Workflow
+
+```bash
+# Lihat status container
+docker compose ps
+
+# Lihat log aplikasi real-time
+docker compose logs -f app
+
+# Akses terminal dalam container
+docker exec -it web2_ci4_app bash
+
+# Jalankan command di container
+docker exec web2_ci4_app php spark migrate
+
+# Rebuild container (jika ada perubahan Dockerfile)
+docker compose up --build -d
+```
+
+---
+
+## 👤 Akun Default
+
+Akun admin sudah dibuat otomatis melalui seeder:
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@email.com` |
+| Password | `admin123` |
+
+**URL Login:** `http://localhost:8082/user/login`
+
+### Tips Keamanan
+- **Ubah password** setelah login pertama kali
+- Gunakan password yang kuat untuk production
+- Jangan hardcode password di kode, gunakan environment variable
+
+---
+
+## 📖 Dokumentasi Fitur
+
+### 1. **Halaman Publik**
+
+#### Beranda (`/`)
+- Menampilkan header, navigasi, dan 3 artikel terbaru
+- Sidebar menampilkan "Artikel Terkini" (dinamis dengan View Cell)
+- Layout: header → navigasi → featured articles → sidebar → footer
+
+#### Daftar Artikel (`/artikel`)
+- Menampilkan semua artikel yang `Published` (status = 1)
+- Pagination: 6 artikel per halaman
+- Query: Artikel di-join dengan kategori untuk menampilkan nama kategori
+- Sorting: Berdasarkan `created_at` DESC (terbaru dahulu)
+
+#### Detail Artikel (`/artikel/{slug}`)
+- Menampilkan artikel lengkap dengan isi, gambar, kategori
+- Hanya menampilkan artikel yang `Published`
+- Akses via URL slug (unik dan SEO-friendly)
+- Jika artikel tidak ditemukan: tampilkan 404
+
+#### Halaman About (`/about`)
+- Konten statis dari SiteContent config
+
+#### Halaman Contact (`/contact`)
+- Konten statis dari SiteContent config
+
+---
+
+### 2. **Autentikasi & Admin**
+
+#### Login (`/user/login`)
+- Form email + password
+- Password di-hash dengan `password_verify()` (PHP native)
+- Session disimpan: `user_id`, `user_name`, `user_email`, `logged_in`
+- Flash message untuk error
+- Redirect ke `/admin/artikel` jika login berhasil
+
+#### Logout (`/user/logout`)
+- Destroy session
+- Redirect ke halaman login
+
+#### Auth Filter
+- Filter `auth` melindungi semua route di `/admin` group
+- Jika user belum login: redirect ke `/user/login`
+
+---
+
+### 3. **Manajemen Artikel (Admin)**
+
+#### Daftar Artikel Admin (`/admin/artikel`)
+- Pagination: 10 artikel per halaman
+- Tabel: ID | Judul | Kategori | Status | Aksi (edit, delete)
+- **Pencarian:** Input `q` (query) untuk cari di judul atau isi
+- **Filter:** Dropdown `kategori_id` untuk filter by kategori
+- Query Builder: `like` untuk pencarian, `where` untuk filter
+- Sorting: `created_at` DESC
+
+#### Tambah Artikel (`/admin/artikel/add`)
+- Form POST
+- Validasi:
+  - Judul: required, min 3 karakter
+  - Isi: required, min 20 karakter
+  - Kategori: required, integer
+  - Status: required, 0 atau 1
+  - Gambar: optional, max 255 karakter
+- Auto-generate slug dari judul
+- Input gambar: path/nama file atau placeholder.svg
+- Submit: insert ke tabel `artikel`
+- Success: flash message + redirect ke daftar artikel
+
+#### Edit Artikel (`/admin/artikel/edit/{id}`)
+- Form GET (tampil form) dan POST (proses update)
+- Validasi sama seperti tambah artikel
+- Update slug (bisa berubah jika judul berubah)
+- Jika artikel tidak ditemukan: 404
+- Success: flash message + redirect ke daftar artikel
+
+#### Hapus Artikel (`/admin/artikel/delete/{id}`)
+- Delete dari tabel `artikel` by ID
+- Redirect ke daftar artikel dengan flash message
+- Tidak ada konfirmasi, langsung hapus
+
+---
+
+### 4. **Manajemen Kategori (Admin)**
+
+#### Daftar Kategori (`/admin/kategori`)
+- Tampilkan semua kategori dengan jumlah artikel
+- Tabel: ID | Nama | Slug | Jumlah Artikel | Aksi (edit, delete)
+
+#### Tambah Kategori (`/admin/kategori/add`)
+- Form POST
+- Validasi:
+  - Nama kategori: required, min 3 karakter
+  - Slug kategori: optional
+- Jika slug kosong: auto-generate dari nama
+- Insert ke tabel `kategori`
+- Success: flash message + redirect
+
+#### Edit Kategori (`/admin/kategori/edit/{id}`)
+- Form GET dan POST
+- Validasi sama seperti tambah
+- Update slug jika ada perubahan
+- Jika kategori tidak ditemukan: 404
+
+#### Hapus Kategori (`/admin/kategori/delete/{id}`)
+- Cek apakah kategori masih dipakai artikel
+- Jika dipakai: tampilkan error message (tidak bisa dihapus)
+- Jika tidak: delete dari tabel `kategori`
+
+---
+
+### 5. **Frontend SPA (VueJS)**
+
+#### Single Page Application
+- Navigasi halus tanpa page reload
+- Vue Router untuk manajemen routing
+- Axios untuk komunikasi dengan backend API
+- Komponen-komponen terpisah untuk maintainability
+
+#### Navigation Guards
+- Proteksi rute yang membutuhkan autentikasi
+- Cek status login di localStorage
+- Redirect ke halaman login jika belum terautentikasi
+
+#### Dynamic Navigation
+- Menu navigasi yang berubah berdasarkan status login
+- Tombol Login/Logout yang dinamis
+
+#### State Management
+- Menggunakan localStorage untuk menyimpan status login
+- Token JWT disimpan di localStorage untuk API calls
+
+---
+
+## 🔌 Endpoint API
+
+### Publik Routes (Server-Side MVC)
+
+| Method | Route | Controller | Deskripsi |
+|--------|-------|-----------|-----------|
+| GET | `/` | Home::index | Halaman beranda |
+| GET | `/about` | Page::about | Halaman about |
+| GET | `/contact` | Page::contact | Halaman contact |
+| GET | `/artikel` | Artikel::index | Daftar artikel publik |
+| GET | `/artikel/{slug}` | Artikel::view | Detail artikel |
+
+### User Routes
+
+| Method | Route | Controller | Deskripsi |
+|--------|-------|-----------|-----------|
+| GET/POST | `/user/login` | User::login | Login form & proses |
+| GET | `/user/logout` | User::logout | Logout |
+
+### Admin Routes (Protected by Auth Filter)
+
+| Method | Route | Controller | Deskripsi |
+|--------|-------|-----------|-----------|
+| GET | `/admin/artikel` | Artikel::admin_index | Daftar artikel (dengan pencarian & filter) |
+| GET/POST | `/admin/artikel/add` | Artikel::add | Form & proses tambah artikel |
+| GET/POST | `/admin/artikel/edit/{id}` | Artikel::edit | Form & proses edit artikel |
+| GET | `/admin/artikel/delete/{id}` | Artikel::delete | Hapus artikel |
+| GET | `/admin/kategori` | Kategori::index | Daftar kategori |
+| GET/POST | `/admin/kategori/add` | Kategori::add | Form & proses tambah kategori |
+| GET/POST | `/admin/kategori/edit/{id}` | Kategori::edit | Form & proses edit kategori |
+| GET | `/admin/kategori/delete/{id}` | Kategori::delete | Hapus kategori |
+
+### REST API Routes (Untuk SPA Frontend)
+
+| Method | Route | Controller | Auth | Deskripsi |
+|--------|-------|-----------|------|-----------|
+| POST | `/api/login` | Api\Auth::login | - | Login API, mengembalikan token |
+| GET | `/api/artikel` | Api\Artikel::index | - | Ambil daftar artikel (publik) |
+| POST | `/api/artikel` | Api\Artikel::create | apiauth | Tambah artikel baru |
+| PUT | `/api/artikel/{id}` | Api\Artikel::update | apiauth | Update artikel |
+| DELETE | `/api/artikel/{id}` | Api\Artikel::delete | apiauth | Hapus artikel |
+
+---
+
+## 🗄 Struktur Database
+
+### Tabel: `kategori`
+
+```sql
+CREATE TABLE kategori (
+  id_kategori INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nama_kategori VARCHAR(100) NOT NULL,
+  slug_kategori VARCHAR(100) UNIQUE NOT NULL
+);
+```
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id_kategori` | INT UNSIGNED | Primary key, auto increment |
+| `nama_kategori` | VARCHAR(100) | Nama kategori (unik per kategori) |
+| `slug_kategori` | VARCHAR(100) | Slug unik untuk URL |
+
+---
+
+### Tabel: `artikel`
+
+```sql
+CREATE TABLE artikel (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  judul VARCHAR(200) NOT NULL,
+  isi TEXT NOT NULL,
+  gambar VARCHAR(255) NULL,
+  status TINYINT(1) DEFAULT 1,
+  slug VARCHAR(200) UNIQUE NOT NULL,
+  id_kategori INT UNSIGNED,
+  created_at DATETIME NULL,
+  updated_at DATETIME NULL,
+  FOREIGN KEY (id_kategori) REFERENCES kategori(id_kategori) 
+    ON DELETE RESTRICT ON UPDATE CASCADE
+);
+```
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id` | INT UNSIGNED | Primary key, auto increment |
+| `judul` | VARCHAR(200) | Judul artikel |
+| `isi` | TEXT | Isi artikel |
+| `gambar` | VARCHAR(255) | Path/nama file gambar |
+| `status` | TINYINT(1) | 1=Published, 0=Draft |
+| `slug` | VARCHAR(200) | Slug unik untuk URL |
+| `id_kategori` | INT UNSIGNED | FK ke tabel kategori |
+| `created_at` | DATETIME | Waktu dibuat (auto) |
+| `updated_at` | DATETIME | Waktu diupdate (auto) |
+
+**Relasi:** One-to-Many (1 kategori → banyak artikel)
+
+---
+
+### Tabel: `users`
+
+```sql
+CREATE TABLE users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(120) NOT NULL,
+  useremail VARCHAR(120) UNIQUE NOT NULL,
+  userpassword VARCHAR(255) NOT NULL
+);
+```
+
+| Kolom | Tipe | Deskripsi |
+|-------|------|-----------|
+| `id` | INT UNSIGNED | Primary key, auto increment |
+| `username` | VARCHAR(120) | Nama user |
+| `useremail` | VARCHAR(120) | Email user (unik) |
+| `userpassword` | VARCHAR(255) | Password (terenkripsi hash) |
+
+---
+
+## 📊 Query Builder & Database Queries
+
+### ArtikelModel::withKategori()
+Join artikel dengan kategori untuk menampilkan nama kategori:
 
 ```php
-public function index()
-{
-    $model = new ArtikelModel();
-    $data = $model->withKategori()->orderBy('artikel.created_at', 'DESC')->findAll();
-    return $this->respond(['status' => 200, 'error' => null, 'data' => $data], 200);
+$artikel = $model
+    ->withKategori()  // JOIN dengan kategori
+    ->where('artikel.status', 1)  // Hanya artikel published
+    ->orderBy('artikel.created_at', 'DESC')  // Terbaru dulu
+    ->paginate(6);
+```
+
+### Pencarian Artikel
+Cari di judul atau isi dengan LIKE:
+
+```php
+$model->groupStart()
+    ->like('artikel.judul', $q)
+    ->orLike('artikel.isi', $q)
+    ->groupEnd();
+```
+
+### Filter Kategori
+Filter artikel berdasarkan kategori:
+
+```php
+if ($kategoriId !== '') {
+    $model->where('artikel.id_kategori', (int) $kategoriId);
 }
 ```
 
-### Endpoints
+---
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/artikel` | Retrieve all articles with category |
-| POST | `/api/artikel` | Create new article (requires token) |
-| PUT | `/api/artikel/{id}` | Update existing article (requires token) |
-| DELETE | `/api/artikel/{id}` | Delete article (requires token) |
+## 🔧 Konfigurasi Penting
 
-### Key Features
-- Menggunakan `CodeIgniter\RESTful\ResourceController` untuk standarisasi method REST
-- Response format JSON melalui properti `$format = 'json'`
-- Join tabel artikel dengan kategori menggunakan method `withKategori()`
-- Error handling dengan `failNotFound()` dan `failUnauthorized()`
+### `.env` (Environment Variables)
+```
+CI_ENVIRONMENT = development  # atau production
+
+DB_HOST = db
+DB_PORT = 3306
+DB_DATABASE = lab_ci4
+DB_USERNAME = ci4user
+DB_PASSWORD = ci4pass
+
+TZ = Asia/Jakarta
+```
+
+### `app/Config/Routes.php`
+Definisi routing publik, user, dan admin dengan auth filter.
+
+### `app/Config/Filters.php`
+Register filter `auth` dan `apiauth` untuk proteksi routes.
+
+### `app/Config/Cors.php`
+Konfigurasi CORS untuk mengizinkan frontend mengakses API.
+
+### `app/Filters/Auth.php`
+Middleware untuk check session login sebelum akses admin routes.
+
+### `app/Filters/ApiAuthFilter.php`
+Middleware untuk check token Bearer pada API calls.
 
 ---
 
-## Module 13 - Vue.js Authentication & Navigation Guards (Client-Side Security)
+## 💡 Tips Pengembangan
 
-### Objective
-Menerapkan keamanan pada sisi klien (Client-Side Security) menggunakan Vue Router Navigation Guards, serta membuat API login endpoint pada backend CodeIgniter 4.
+### Menambah Fitur Baru
 
-### Backend Implementation
+1. **Buat Migration** (jika ada perubahan database):
+   ```bash
+   docker exec web2_ci4_app php spark make:migration CreateTableName
+   ```
 
-**Login API Controller:** `app/app/Controllers/Api/Auth.php`
+2. **Buat Model**:
+   ```bash
+   docker exec web2_ci4_app php spark make:model ModelName
+   ```
 
-Auth controller menerima kredensial username/password via POST request, memverifikasi ke database, dan mengembalikan token base64 jika valid.
+3. **Buat Controller**:
+   ```bash
+   docker exec web2_ci4_app php spark make:controller ControllerName
+   ```
 
+4. **Buat View**:
+   Buat file di `app/app/Views/folder/nama_view.php`
+
+### Debugging
+
+```bash
+# Lihat error aplikasi
+docker compose logs app
+
+# Akses shell container
+docker exec -it web2_ci4_app bash
+
+# Jalankan query langsung ke MySQL
+docker exec -it web2_ci4_db mysql -uroot -p lab_ci4
+```
+
+---
+
+## 📝 Catatan
+
+- Seeder otomatis create akun admin: `admin@email.com` / `admin123`
+- Slug artikel & kategori di-generate otomatis dari nama/judul
+- Password di-hash menggunakan PHP built-in `password_hash()`
+- Session disimpan di `writable/session/`
+- Log ada di `writable/logs/`
+- Upload/gambar bisa disimpan di `writable/uploads/`
+
+---
+
+## 📄 Lisensi
+
+Project ini adalah hasil praktikum dan bebas digunakan sesuai kebutuhan.
+
+---
+
+## 📖 Dokumentasi Praktikum
+
+Berikut adalah dokumentasi lengkap setiap modul praktikum yang telah dikerjakan:
+
+---
+
+## 📋 Modul 1-3: Dasar-Dasar CodeIgniter 4 dan Database
+
+### 📖 Modul 1: Pengenalan CodeIgniter 4 dan Instalasi
+**Tujuan**: Mengenal struktur CodeIgniter 4 dan instalasi awal
+**Topik**:
+- Arsitektur MVC (Model-View-Controller)
+- Struktur folder CodeIgniter 4
+- Konfigurasi dasar `.env`
+- Membuat project baru dengan Composer
+- Memahami routing dasar
+
+**Hasil**: Project CodeIgniter 4 base yang siap dikembangkan
+
+---
+
+### 📖 Modul 2: Database dan Migration
+**Tujuan**: Implementasi database dengan migration
+**Topik**:
+- Konfigurasi database di `.env`
+- Membuat migration file
+- Struktur tabel database
+- Menjalankan migration
+- Relationship antar tabel
+
+**Hasil**: Database structure dengan tabel kategori, artikel, dan users
+
+---
+
+### 📖 Modul 3: Models dan CRUD dasar
+**Tujuan**: Membuat models dan operasi CRUD dasar
+**Topik**:
+- Membuat model entities
+- Query builder methods
+- Insert, Read, Update, Delete dasar
+- Validasi data
+- Pagination
+
+**Hasil**: Models functional untuk operasi database
+
+---
+
+## 📋 Modul 4-6: Fitur Administrasi dan User Interface
+
+### 📖 Modul 4: Autentikasi dan Session
+**Tujuan**: Implementasi sistem login dan session management
+**Topik**:
+- Session handling di CodeIgniter 4
+- Password hashing dengan `password_hash()`
+- Form login dan validasi
+- Session data management
+- Authentication filters
+
+**Hasil**: Sistem login yang aman dengan password terenkripsi
+
+---
+
+### 📖 Modul 5: Manajemen Artikel Lengkap
+**Tujuan**: CRUD lengkap untuk artikel dengan fitur-fitur admin
+**Topik**:
+- Create artikel dengan form validation
+- Read artikel dengan pagination
+- Update artikel dengan data pre-population
+- Delete artikel dengan konfirmasi
+- Status artikel (Published/Draft)
+- Image upload management
+
+**Hasil**: Sistem manajemen artikel yang lengkap
+
+---
+
+### 📖 Modul 6: Manajemen Kategori dan Relasi
+**Tujuan**: Implementasi kategori dan relasi dengan artikel
+**Topik**:
+- CRUD untuk kategori
+- One-to-Many relationship
+- Foreign key constraints
+- Dropdown kategori di form artikel
+- Slug generation otomatis
+- Prevent delete kategori yang masih dipakai
+
+**Hasil**: Sistem kategori yang terintegrasi dengan artikel
+
+---
+
+## 📋 Modul 7-9: Fitur Publik dan Frontend
+
+### 📖 Modul 7: Halaman Publik dan Layout
+**Tujuan**: Membuat halaman publik yang user-friendly
+**Topik**:
+- Layout system dengan reusable components
+- View Cells untuk artikel terkini
+- Halaman about dan contact
+- Responsive design dengan CSS
+- Dynamic sidebar
+
+**Hasil**: Halaman publik yang menarik dan fungsional
+
+---
+
+### 📖 Modul 8: Pencarian dan Filter
+**Tujuan**: Implementasi fitur pencarian dan filter
+**Topik**:
+- Search functionality dengan LIKE query
+- Filter berdasarkan kategori
+- Combined search and filter
+- Query builder groupStart/groupEnd
+- Parameter persistence di URL
+
+**Hasil**: Fitur pencarian dan filter yang powerful
+
+---
+
+### 📖 Modul 9: Detail Artikel dan SEO
+**Tujuan**: Membuat halaman detail dan SEO optimization
+**Topik**:
+- Dynamic routing dengan slug
+- Detail artikel page
+- SEO optimization dengan meta tags
+- Related articles
+- Breadcrumb navigation
+
+**Hasil**: Halaman detail yang SEO-friendly
+
+---
+
+## 📋 Modul 10-12: Docker dan Advanced Features
+
+### 📖 Modul 10: Containerisasi dengan Docker
+**Tujuan**: Mengimplementasikan Docker untuk development environment
+**Topik**:
+- Dockerfile untuk CodeIgniter 4
+- Docker Compose untuk multi-container
+- Database containerization
+- Volume management
+- Development workflow dengan Docker
+
+**Hasil**: Development environment yang terisolasi dan portable
+
+---
+
+### 📖 Modul 11: Advanced Query dan Performance
+**Tujuan**: Optimasi query dan performance
+**Topik**:
+- Query optimization
+- Database indexing
+- Eager loading untuk relationships
+- Query caching
+- Performance monitoring
+
+**Hasil**: Aplikasi yang lebih performant
+
+---
+
+### 📖 Modul 12: Testing dan Deployment
+**Tujuan**: Testing preparation dan deployment strategy
+**Topik**:
+- Unit testing dengan PHPUnit
+- Integration testing
+- Deployment checklist
+- Production configuration
+- Security hardening
+
+**Hasil**: Aplikasi siap untuk production
+
+---
+
+## 🔐 Modul 13: VueJS Autentikasi dan Navigation Guards (SPA Security)
+
+### Deskripsi
+Praktikum ini mengimplementasikan **Client-Side Security** menggunakan Vue Router Navigation Guards dan **Server-Side API Login** pada backend CodeIgniter 4.
+
+### Fitur
+- **API Login Endpoint** (`POST /api/login`) — Memvalidasi username/password dan mengembalikan token base64
+- **Login Component** (VueJS) — Form login yang mengirim kredensial ke backend via Axios
+- **Navigation Guards** (`router.beforeEach`) — Mencegat akses ke rute yang membutuhkan autentikasi
+- **Dynamic Nav Menu** — Tombol Login/Logout berubah secara dinamis berdasarkan status login
+
+### Alur Kerja
+1. User membuka halaman `/artikel` tanpa login → Navigation guard mendeteksi `requiresAuth: true` → Alert ditampilkan → Redirect ke `/login`
+2. User mengisi form login → Axios POST ke `http://localhost:8082/api/login` → Backend memverifikasi kredensial → Mengembalikan token
+3. Token disimpan di `localStorage` → User diarahkan ke halaman artikel
+4. Saat logout → `localStorage` dibersihkan → Redirect ke beranda
+
+### Implementasi Backend (CI4)
+
+**Controller:** `app/app/Controllers/Api/Auth.php`
 ```php
 public function login()
 {
     $username = $this->request->getVar('username');
     $password = $this->request->getVar('password');
     $user = (new UserModel())->where('username', $username)
-        ->orWhere('useremail', $username)->first();
+                  ->orWhere('useremail', $username)->first();
 
     if ($user && password_verify($password, $user['userpassword'])) {
         return $this->respond([
-            'status' => 200,
-            'error' => null,
-            'messages' => 'Login Berhasil',
-            'data' => [
-                'id' => $user['id'],
-                'username' => $user['username'],
-                'token' => base64_encode('TOKEN-SECRET-' . $user['username'])
-            ]
-        ], 200);
+            'status' => 200, 'error' => null, 'messages' => 'Login Berhasil',
+            'data' => ['id' => $user['id'], 'username' => $user['username'],
+                       'token' => base64_encode('TOKEN-SECRET-' . $user['username'])]
+        ]);
     }
-    return $this->failUnauthorized('Username atau Password yang Anda masukkan salah.');
+    return $this->failUnauthorized('Username atau Password salah.');
 }
 ```
 
-**Route Registration:**
-```php
-$routes->post('api/login', 'Api\Auth::login');
-```
+**Route:** `$routes->post('api/login', 'Api\Auth::login');`
 
-### Frontend Implementation
-
-**Login Component:** `frontend/assets/js/components/Login.js`
-
-Komponen login dengan form username/password dan menggunakan Axios untuk mengirim kredensial ke API backend.
-
-```javascript
-handleLogin() {
-    axios.post(apiUrl + '/api/login', {
-        username: this.username,
-        password: this.password
-    })
-    .then(response => {
-        if (response.data.status === 200) {
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userToken', response.data.data.token);
-            this.$router.push('/artikel');
-            window.location.reload();
-        }
-    })
-    .catch(error => {
-        this.errorMessage = error.response?.data?.messages || 'Terjadi kesalahan jaringan.';
-    });
-}
-```
+### Implementasi Frontend (VueJS SPA)
 
 **Navigation Guard:** `frontend/assets/js/app.js`
-
-Vue Router Navigation Guard memeriksa status autentikasi sebelum mengizinkan akses ke halaman tertentu.
-
 ```javascript
-const routes = [
-    { path: '/', component: Home },
-    { path: '/login', component: Login },
-    { path: '/artikel', component: Artikel, meta: { requiresAuth: true } }
-];
-
 router.beforeEach((to, from, next) => {
     const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true';
     if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
@@ -143,296 +976,109 @@ router.beforeEach((to, from, next) => {
 });
 ```
 
-### Security Flow
-1. User navigates ke halaman `/artikel` tanpa login
-2. Navigation guard mendeteksi `meta.requiresAuth: true` and `isLoggedIn = false`
-3. Alert muncul, user diarahkan ke halaman `/login`
-4. User login dengan kredensial valid
-5. Token disimpan di localStorage, user diarahkan ke halaman artikel
+**File yang dibuat/modified:**
+- `app/app/Controllers/Api/Auth.php` - API endpoint untuk login
+- `frontend/assets/js/components/Login.js` - Vue component untuk login
+- `frontend/assets/js/app.js` - Router configuration dan navigation guards
+- `frontend/index.html` - Template HTML untuk SPA
+- `frontend/assets/css/style.css` - Styling untuk form login
 
 ---
 
-## Module 14 - Token Authentication & Axios Interceptors (Server-Side Security)
+## 🔒 Modul 14: Keamanan API, Autentikasi Token, dan Axios Interceptors
 
-### Objective
-Menambahkan Server-Side Security menggunakan Token-Based Authentication pada REST API, serta Axios Interceptors untuk auto-inject token dari sisi frontend.
+### Deskripsi
+Praktikum ini menambahkan **Server-Side Security** menggunakan Token-Based Authentication pada REST API dan **Axios Interceptors** pada sisi frontend untuk auto-inject token.
 
-### Backend Implementation
+### Fitur
+- **API Auth Filter** (`apiauth`) — Filter CodeIgniter yang memeriksa token Bearer pada setiap request
+- **Token Validation** — Memeriksa keberadaan token di HTTP Header `Authorization`
+- **Axios Request Interceptor** — Auto-inject token dari `localStorage` ke setiap request
+- **Axios Response Interceptor** — Global handler untuk error 401 (auto logout)
+- **CORS Configuration** — Mengizinkan cross-origin request dari frontend SPA
 
-**API Auth Filter:** `app/app/Filters/ApiAuthFilter.php`
+### Perbedaan Keamanan: Client-Side vs Server-Side
 
-Filter ini mengekstrak token Bearer dari HTTP Header Authorization setiap request. Jika token tidak ditemukan, server mengembalikan HTTP 401 Unauthorized.
+| Aspek | Vue Router Guards (Client) | CodeIgniter Filters (Server) |
+|-------|---------------------------|------------------------------|
+| **Lokasi** | Browser (JavaScript) | Server (PHP) |
+| **Bypass possible?** | Ya (nonaktifkan JS) | Tidak (server langsung blokir) |
+| **Melindungi** | Tampilan halaman | Endpoint API & data |
+| **Cara kerja** | Cek localStorage | Cek HTTP Header Authorization |
+| **Tools bypass** | Browser dev tools | Postman / curl tanpa token |
 
+### Implementasi Backend (CI4)
+
+**Filter:** `app/app/Filters/ApiAuthFilter.php`
 ```php
 public function before(RequestInterface $request, $arguments = null)
 {
     $authHeader = $request->getServer('HTTP_AUTHORIZATION');
-
     if (!$authHeader) {
-        $response = Services::response();
-        $response->setStatusCode(401);
-        return $response->setJSON([
-            'status' => 401,
-            'error' => 401,
-            'messages' => 'Akses Ditolak. Token tidak ditemukan pada request!'
-        ]);
+        return Services::response()
+            ->setStatusCode(401)
+            ->setJSON(['status' => 401, 'error' => 401, 'messages' => 'Token tidak ditemukan!']);
     }
-
-    $token = null;
-    if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-        $token = $matches[1];
-    }
-
-    if (!$token || empty($token)) {
-        $response = Services::response();
-        $response->setStatusCode(401);
-        return $response->setJSON([
-            'status' => 401,
-            'error' => 401,
-            'messages' => 'Sesi Token tidak valid atau kedaluwarsa!'
-        ]);
-    }
+    // Extract Bearer token and validate...
 }
 ```
 
-**Filter Registration:** `app/app/Config/Filters.php`
-
-```php
-public array $aliases = [
-    'apiauth' => \App\Filters\ApiAuthFilter::class,
-];
-```
-
-**Protected Routes:** `app/app/Config/Routes.php`
-
+**Route Protection:**
 ```php
 $routes->post('api/artikel', 'Api\Artikel::create', ['filter' => 'apiauth']);
 $routes->put('api/artikel/(:segment)', 'Api\Artikel::update/$1', ['filter' => 'apiauth']);
 $routes->delete('api/artikel/(:segment)', 'Api\Artikel::delete/$1', ['filter' => 'apiauth']);
 ```
 
-### Frontend Implementation
+### Implementasi Frontend (VueJS SPA)
 
-**Axios Request Interceptor:** `frontend/assets/js/app.js`
-
-Interceptor ini secara otomatis menyisipkan token Bearer ke setiap HTTP request sebelum dikirim ke server.
-
+**Axios Interceptors:** `frontend/assets/js/app.js`
 ```javascript
-axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('userToken');
-        if (token) {
-            config.headers['Authorization'] = 'Bearer ' + token;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
-```
+// Request Interceptor — Auto-inject token
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem('userToken');
+    if (token) config.headers['Authorization'] = 'Bearer ' + token;
+    return config;
+});
 
-**Axios Response Interceptor:** `frontend/assets/js/app.js`
-
-Interceptor response global menangani error HTTP 401. Jika token tidak valid atau kadaluarsa, user akan diarahkan ke halaman login secara otomatis.
-
-```javascript
+// Response Interceptor — Handle 401 globally
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            alert('Sesi Anda telah berakhir atau Token tidak sah. Silakan login kembali.');
+            alert('Sesi berakhir. Silakan login kembali.');
             localStorage.clear();
             window.location.href = '#/login';
-            window.location.reload();
         }
         return Promise.reject(error);
     }
 );
 ```
 
-### Client-Side vs Server-Side Security
+### Struktur Frontend SPA
 
-| Aspect | Vue Router Guards (Client) | CodeIgniter Filters (Server) |
-|--------|---------------------------|------------------------------|
-| Location | Browser (JavaScript) | Server (PHP) |
-| Bypass Possible | Yes (disable JavaScript) | No (server intercepts all requests) |
-| Protection Target | Page/View access | API endpoint & data |
-| Mechanism | Check localStorage | Validate HTTP Authorization header |
-| Bypass Tools | Browser DevTools | Postman / cURL without token |
-| Response on Failure | Alert + route redirect | HTTP 401 JSON response |
-
-### CORS Configuration
-
-CORS diaktifkan secara global melalui `app/app/Config/Filters.php` dan dikonfigurasi di `app/app/Config/Cors.php` untuk mengizinkan akses dari origin mana pun dengan metode HTTP standar.
-
-```php
-public array $globals = [
-    'before' => ['cors'],
-    'after' => ['cors'],
-];
+```
+frontend/
+├── index.html                          # Entry point SPA
+├── assets/
+│   ├── css/
+│   │   └── style.css                   # Stylesheet SPA
+│   └── js/
+│       ├── app.js                      # Vue router, guards, Axios interceptors
+│       └── components/
+│           ├── Home.js                  # Halaman beranda
+│           ├── Artikel.js              # Daftar artikel (terproteksi)
+│           └── Login.js                # Form login
 ```
 
-```php
-public array $default = [
-    'allowedOrigins' => ['*'],
-    'allowedHeaders' => ['*'],
-    'allowedMethods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    'supportsCredentials' => true,
-];
-```
+### File yang dibuat/modified:**
+- `app/app/Filters/ApiAuthFilter.php` - Filter untuk validasi token API
+- `app/app/Config/Filters.php` - Registrasi filter apiauth
+- `app/app/Config/Cors.php` - Konfigurasi CORS
+- `app/app/Controllers/Api/Artikel.php` - API endpoints untuk artikel CRUD
+- `frontend/assets/js/app.js` - Tambahkan Axios interceptors
+- `frontend/assets/js/components/Artikel.js` - Vue component untuk artikel dengan API calls
 
 ---
 
-## Complete API Endpoint Reference
-
-### REST API
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/login` | None | User login, returns token |
-| GET | `/api/artikel` | None | List all articles |
-| POST | `/api/artikel` | apiauth | Create new article |
-| PUT | `/api/artikel/{id}` | apiauth | Update article |
-| DELETE | `/api/artikel/{id}` | apiauth | Delete article |
-
-### Server-Side MVC Routes
-
-| Method | Endpoint | Controller | Description |
-|--------|----------|------------|-------------|
-| GET | `/` | Home::index | Homepage |
-| GET | `/about` | Page::about | About page |
-| GET | `/contact` | Page::contact | Contact page |
-| GET | `/artikel` | Artikel::index | Public article list |
-| GET | `/artikel/{slug}` | Artikel::view | Article detail |
-| GET/POST | `/user/login` | User::login | Admin login page |
-| GET | `/user/logout` | User::logout | Admin logout |
-
-### Protected Admin Routes
-
-| Method | Endpoint | Controller | Description |
-|--------|----------|------------|-------------|
-| GET | `/admin/artikel` | Artikel::admin_index | Article management (with search & filter) |
-| GET/POST | `/admin/artikel/add` | Artikel::add | Create article |
-| GET/POST | `/admin/artikel/edit/{id}` | Artikel::edit | Edit article |
-| GET | `/admin/artikel/delete/{id}` | Artikel::delete | Delete article |
-| GET | `/admin/kategori` | Kategori::index | Category list |
-| GET/POST | `/admin/kategori/add` | Kategori::add | Create category |
-| GET/POST | `/admin/kategori/edit/{id}` | Kategori::edit | Edit category |
-| GET | `/admin/kategori/delete/{id}` | Kategori::delete | Delete category |
-
----
-
-## Project Structure
-
-```
-web2/
-├── app/                              # CodeIgniter 4 application
-│   ├── app/
-│   │   ├── Config/                   # Application configuration
-│   │   │   ├── Routes.php           # Route definitions
-│   │   │   ├── Filters.php          # Filter/middleware registration
-│   │   │   ├── Cors.php            # CORS configuration
-│   │   │   └── ...
-│   │   ├── Controllers/
-│   │   │   ├── Api/                 # REST API controllers
-│   │   │   │   ├── Auth.php        # Login endpoint
-│   │   │   │   └── Artikel.php     # Article CRUD endpoint
-│   │   │   ├── Home.php            # Homepage
-│   │   │   ├── Artikel.php         # Server-side article CRUD
-│   │   │   ├── Kategori.php        # Category management
-│   │   │   ├── Page.php            # Static pages
-│   │   │   └── User.php            # Login/logout
-│   │   ├── Filters/
-│   │   │   ├── Auth.php            # Session auth filter
-│   │   │   └── ApiAuthFilter.php   # Token-based auth filter
-│   │   ├── Models/                  # Database models
-│   │   ├── Views/                   # Server-side templates
-│   │   └── Database/               # Migrations & seeds
-│   ├── public/                      # Document root
-│   ├── vendor/                      # Composer dependencies
-│   ├── writable/                    # Cache, logs, sessions
-│   └── .env                        # Environment configuration
-├── frontend/                        # Vue.js SPA frontend
-│   ├── index.html                  # SPA entry point
-│   └── assets/
-│       ├── css/
-│       │   └── style.css           # SPA stylesheet
-│       └── js/
-│           ├── app.js              # Vue Router, Axios interceptors, app instance
-│           └── components/
-│               ├── Home.js         # Homepage component
-│               ├── Artikel.js      # Protected article list component
-│               └── Login.js        # Login form component
-├── docker/                          # Docker configuration
-├── docker-compose.yml               # Docker Compose setup
-└── README.md
-```
-
----
-
-## How to Run
-
-### Prerequisites
-- Docker and Docker Compose installed
-- Git
-
-### Installation
-
-```bash
-# Clone repository
-git clone https://github.com/dnrprsty/Laporan_Praktikum-WEB2.git
-cd web2
-
-# Build and run containers
-docker compose up --build -d
-
-# Wait for initialization (1-2 minutes)
-docker compose logs -f app
-```
-
-### Access
-
-| Service | URL/Port |
-|---------|----------|
-| Web Application | http://localhost:8082 |
-| MySQL Database | localhost:3307 |
-
-### Default Admin Account
-
-| Field | Value |
-|-------|-------|
-| Email | admin@email.com |
-| Password | admin123 |
-
-Login URL: http://localhost:8082/user/login
-
-### Development Commands
-
-```bash
-# View container status
-docker compose ps
-
-# View application logs
-docker compose logs -f app
-
-# SSH into container
-docker exec -it web2_ci4_app bash
-
-# Run migrations
-docker exec web2_ci4_app php spark migrate
-
-# Stop containers
-docker compose down
-
-# Rebuild containers
-docker compose up --build -d
-```
-
----
-
-## Notes
-
-- Token authentication menggunakan format base64 sederhana (`base64_encode("TOKEN-SECRET-" + username)`)
-- Untuk production, gunakan JWT (JSON Web Token) library seperti `firebase/php-jwt`
-- Password pengguna di-hash menggunakan PHP native `password_hash()` dengan algoritma `PASSWORD_DEFAULT` (bcrypt)
-- Frontend Vue.js SPA diakses melalui file `frontend/index.html` secara langsung atau melalui web server terpisah
-- CORS diaktifkan untuk development; sesuaikan `allowedOrigins` untuk production
+## 👨‍💻 Dibuat dengan ❤️ menggunakan CodeIgniter 4 dan VueJS
